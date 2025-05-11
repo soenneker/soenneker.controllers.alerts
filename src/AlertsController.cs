@@ -12,6 +12,7 @@ using Soenneker.Requests.Azure.Alerts;
 
 namespace Soenneker.Controllers.Alerts;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [ApiController]
 [ApiVersion("1")]
 [Route("alerts")]

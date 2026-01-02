@@ -14,7 +14,7 @@
         <AssemblyName>Soenneker.Controllers.Alerts</AssemblyName>
         <PackageId>Soenneker.Controllers.Alerts</PackageId>
         <PackageTags>controllers alerts alert azure controller alertscontroller ms teams msteams util csharp dotnet c# .net</PackageTags>
-        <Copyright>Copyright © 2025 Jake Soenneker</Copyright>
+        <Copyright>Copyright © 2025-2026 Jake Soenneker</Copyright>
         <Authors>Jake Soenneker</Authors>
         <Company>https://soenneker.com</Company>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>

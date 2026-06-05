@@ -12,6 +12,9 @@ using Soenneker.Requests.Azure.Alerts;
 
 namespace Soenneker.Controllers.Alerts;
 
+/// <summary>
+/// Represents the alerts controller.
+/// </summary>
 [ApiExplorerSettings(IgnoreApi = true)]
 [ApiController]
 [ApiVersion("1")]

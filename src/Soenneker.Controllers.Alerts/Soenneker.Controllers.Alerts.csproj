@@ -45,6 +45,6 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Controllers.Base" Version="4.0.67" />
-        <PackageReference Include="Soenneker.Coordinators.Alerts" Version="4.0.778" />
+        <PackageReference Include="Soenneker.Coordinators.Alerts" Version="4.0.779" />
     </ItemGroup>
 </Project>

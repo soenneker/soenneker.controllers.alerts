@@ -29,12 +29,12 @@ public sealed class AlertsController : BaseController
     }
 
     /// <summary>
-    /// Handles the creation of Azure resources and returns a status code indicating the result of the operation.
+    /// Receives an Azure Monitor common-alert-schema payload and forwards it through the alerts coordinator.
     /// </summary>
     /// <param name="apiKey">Used for authentication to authorize the request.</param>
     /// <param name="request">Contains the details necessary for creating the Azure resource.</param>
     /// <param name="cancellationToken">Allows the operation to be canceled if needed.</param>
-    /// <returns>Returns a 201 status code upon successful creation of the resource.</returns>
+    /// <returns>A 201 response when the alert is accepted; otherwise, a 400 response when the payload cannot be processed.</returns>
     [MapToApiVersion("1")]
     [HttpPost("azure")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -44,8 +44,8 @@ public sealed class AlertsController : BaseController
     [AllowAnonymous]
     public async ValueTask<IActionResult> CreateAzure([FromQuery] string apiKey, [FromBody] CasRequest request, CancellationToken cancellationToken)
     {
-        _ = await _alertsCoord.CreateAzure(apiKey, request, cancellationToken);
+        bool? accepted = await _alertsCoord.CreateAzure(apiKey, request, cancellationToken);
 
-        return StatusCode(201);
+        return accepted == true ? StatusCode(StatusCodes.Status201Created) : BadRequest();
     }
 }

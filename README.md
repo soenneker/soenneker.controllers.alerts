@@ -5,7 +5,7 @@
 
 # Soenneker.Controllers.Alerts
 
-Represents the alerts controller.
+Adds an MVC endpoint that accepts Azure Monitor common alert schema payloads and forwards them to `IAlertsCoordinator`.
 
 ## Install
 
@@ -13,16 +13,51 @@ Represents the alerts controller.
 dotnet add package Soenneker.Controllers.Alerts
 ```
 
-## What you get
+## Register the controller and coordinator
 
-- `AlertsController` — Represents the alerts controller.
+```csharp
+using Soenneker.Controllers.Alerts;
+using Soenneker.Coordinators.Alerts.Registrars;
 
-## API at a glance
+builder.Services
+    .AddControllers()
+    .AddApplicationPart(typeof(AlertsController).Assembly);
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `AlertsController.CreateAzure(apiKey, request, cancellationToken)` | Handles the creation of Azure resources and returns a status code indicating the result of the operation. | Returns a 201 status code upon successful creation of the resource. |
+builder.Services.AddAlertsCoordinatorAsSingleton();
+```
 
-## Practical notes
+The coordinator requires these application settings in addition to the Microsoft Teams settings used by `Soenneker.MsTeams.Util`:
 
-- Cancellation stops pending work; it does not undo work that has already completed.
+```json
+{
+  "Api": {
+    "Alerts": {
+      "AzureApiKey": "replace-with-a-random-secret"
+    }
+  },
+  "Environment": "Production"
+}
+```
+
+## Endpoint
+
+```http
+POST /alerts/azure?apiKey=<secret>
+Content-Type: application/json
+```
+
+The body is a `CasRequest` from Azure Monitor's common alert schema.
+
+| Response | Meaning |
+| --- | --- |
+| `201 Created` | The coordinator accepted and forwarded the alert |
+| `400 Bad Request` | The payload did not contain the required alert data |
+
+The controller is excluded from API Explorer and marked `AllowAnonymous`; the configured API key is its application-level credential. Authentication failure is surfaced by the coordinator through the application's exception handling.
+
+## Security and operation
+
+- Azure Monitor's ordinary webhook model commonly places a token in the callback URL. Query strings are frequently captured by gateways, access logs, traces, and deployment state. Use HTTPS, redact the `apiKey` query value throughout the request path, rotate it when exposed, and never place the callback URL in source control.
+- For stronger authentication, prefer an Azure Monitor Secure Webhook protected by Microsoft Entra ID and an application endpoint configured for bearer authentication. That requires host-level authentication rather than this controller's static-key coordinator contract.
+- Cancellation is forwarded to the coordinator and Microsoft Teams delivery. It does not undo a message already accepted by the downstream service.
+- API version `1` is declared through ASP.NET API Versioning; the host determines whether versions are selected by query string, header, media type, or another configured reader.
